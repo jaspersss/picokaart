@@ -65,12 +65,33 @@
                 border: none !important;
                 border-radius: 0 !important;
                 margin: 0 !important;
-                width: 100% !important;
-                height: 100% !important;
-                max-width: 100% !important;
-                max-height: 100% !important;
                 padding: 5mm 5mm 10mm 5mm !important;
                 overflow: hidden !important;
+                box-sizing: border-box !important;
+            }
+
+            /* Portait instellingen (Standaard) */
+            body.print-portrait #canvas-wrapper {
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                max-width: none !important;
+                max-height: none !important;
+            }
+
+            /* Landscape instellingen (Gedwongen rotatie op Portrait papier) */
+            body.print-landscape #canvas-wrapper {
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 297mm !important; /* Breedte wordt de hoogte van A4 */
+                height: 210mm !important; /* Hoogte wordt de breedte van A4 */
+                max-width: none !important;
+                max-height: none !important;
+                transform-origin: top left !important;
+                transform: rotate(90deg) translateY(-100%) !important;
             }
 
             .empty-slot { border: none !important; }
@@ -102,20 +123,11 @@
         .aspect-portrait { aspect-ratio: 210 / 297; }
         .aspect-landscape { aspect-ratio: 297 / 210; }
     </style>
-    <!-- Vaste stijlen voor printer-orientatie & het verbergen van browser-headers/footers -->
-    <style id="page-style-portrait" media="print">
+    <!-- Vaste stijl: ALTIJD portrait voor de printer, landcape wordt gedraaid via CSS! -->
+    <style id="page-style" media="print">
         @page { 
-            size: portrait; 
+            size: portrait !important; 
             margin: 0;
-            /* Leegmaken van de standaard browser print-info */
-            @top-left { content: '' } @top-center { content: '' } @top-right { content: '' }
-            @bottom-left { content: '' } @bottom-center { content: '' } @bottom-right { content: '' }
-        }
-    </style>
-    <style id="page-style-landscape" media="print" disabled>
-        @page { 
-            size: landscape; 
-            margin: 0; 
             /* Leegmaken van de standaard browser print-info */
             @top-left { content: '' } @top-center { content: '' } @top-right { content: '' }
             @bottom-left { content: '' } @bottom-center { content: '' } @bottom-right { content: '' }
@@ -297,7 +309,13 @@
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
                 <h3 class="text-xl font-bold mb-4">Kies een pictogram</h3>
-                <input type="text" id="icon-search" placeholder="Typ hier om te zoeken (bijv. wassen)..." class="w-full p-4 rounded-xl border border-slate-300 shadow-sm focus:border-brand-600 focus:ring-2 focus:ring-brand-100 text-lg" onkeyup="filterIcons(this.value)">
+                <div class="flex gap-2">
+                    <input type="text" id="icon-search" placeholder="Typ hier om te zoeken (bijv. wassen)..." class="w-full p-4 rounded-xl border border-slate-300 shadow-sm focus:border-brand-600 focus:ring-2 focus:ring-brand-100 text-lg" onkeyup="filterIcons(this.value)">
+                    <button onclick="selectIcon('', null)" class="px-4 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-xl font-medium transition whitespace-nowrap flex items-center gap-2" title="Maak dit vakje weer leeg">
+                        <svg class="w-5 h-5 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        Wissen
+                    </button>
+                </div>
             </div>
             
             <!-- Snelknoppen & Resultaten -->
@@ -486,21 +504,18 @@
             // 2. Aspect Ratio & Printer Orientation
             wrapper.classList.remove('aspect-portrait', 'aspect-landscape');
             
-            const stylePortrait = document.getElementById('page-style-portrait');
-            const styleLandscape = document.getElementById('page-style-landscape');
-
             if(config.orientation === 'portrait') {
                 wrapper.classList.add('aspect-portrait');
                 wrapper.style.height = '100%';
                 wrapper.style.width = 'auto';
-                stylePortrait.disabled = false;
-                styleLandscape.disabled = true;
+                document.body.classList.add('print-portrait');
+                document.body.classList.remove('print-landscape');
             } else {
                 wrapper.classList.add('aspect-landscape');
                 wrapper.style.width = '100%';
                 wrapper.style.height = 'auto';
-                stylePortrait.disabled = true;
-                styleLandscape.disabled = false;
+                document.body.classList.add('print-landscape');
+                document.body.classList.remove('print-portrait');
             }
 
             // 3. Grid Classes toepassen
