@@ -464,27 +464,24 @@
                 titleInput.classList.add('hidden');
             }
 
-            // 2. Aspect Ratio (Staand of Liggend instellen)
+            // 2. Aspect Ratio & Printer Orientation
             wrapper.classList.remove('aspect-portrait', 'aspect-landscape');
             
-            // Verwijder oude printer instellingen en forceer de browser om opnieuw te lezen
-            let oldStyle = document.getElementById('print-page-style');
-            if (oldStyle) oldStyle.remove();
-            
-            let pageStyle = document.createElement('style');
-            pageStyle.id = 'print-page-style';
-            document.head.appendChild(pageStyle);
+            const stylePortrait = document.getElementById('page-style-portrait');
+            const styleLandscape = document.getElementById('page-style-landscape');
 
             if(config.orientation === 'portrait') {
                 wrapper.classList.add('aspect-portrait');
                 wrapper.style.height = '100%';
                 wrapper.style.width = 'auto';
-                pageStyle.innerHTML = '@page { size: portrait; margin: 0; }';
+                stylePortrait.disabled = false;
+                styleLandscape.disabled = true;
             } else {
                 wrapper.classList.add('aspect-landscape');
                 wrapper.style.width = '100%';
                 wrapper.style.height = 'auto';
-                pageStyle.innerHTML = '@page { size: landscape; margin: 0; }';
+                stylePortrait.disabled = true;
+                styleLandscape.disabled = false;
             }
 
             // 3. Grid Classes toepassen
