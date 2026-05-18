@@ -12,7 +12,7 @@ In de zoektocht naar hulpmiddelen merkte ik hoe frustrerend het was om even snel
 
 Ik dacht: **dit moet sneller, simpeler en vooral menselijker.** Daarom heb ik `pictokaart.nl` gebouwd.
 
-Laat vooral je ervaringen weten, omdat we geen gegevens verzemelen weten we ook niet hoevaak en hoe het gebruikt wordt, laat het weten.
+Laat vooral je ervaringen weten, omdat we geen gegevens verzamelen weten we ook niet hoevaak en hoe het gebruikt wordt, laat het weten.
 
 ---
 
