@@ -395,12 +395,12 @@
                 wrapper.classList.add('aspect-portrait');
                 wrapper.style.height = '100%';
                 wrapper.style.width = 'auto';
-                pageStyle.innerHTML = '@media print { @page { size: portrait; margin: 0; } }';
+                pageStyle.innerHTML = '@page { size: portrait; margin: 0; }';
             } else {
                 wrapper.classList.add('aspect-landscape');
                 wrapper.style.width = '100%';
                 wrapper.style.height = 'auto';
-                pageStyle.innerHTML = '@media print { @page { size: landscape; margin: 0; } }';
+                pageStyle.innerHTML = '@page { size: landscape; margin: 0; }';
             }
 
             // 3. Grid Classes toepassen
@@ -411,7 +411,7 @@
             
             AppState.slots.forEach(slot => {
                 const slotDiv = document.createElement('div');
-                slotDiv.className = "flex flex-col items-center justify-between gap-2 p-2 min-h-0 min-w-0";
+                slotDiv.className = "flex flex-col items-center justify-between gap-2 p-2 min-h-0 min-w-0 h-full overflow-hidden";
                 
                 // Afbeelding Vlak
                 const imgContainer = document.createElement('div');
@@ -422,7 +422,7 @@
                     // Er is een afbeelding
                     imgContainer.classList.remove('border-dashed', 'border-slate-300', 'hover:border-brand-500');
                     imgContainer.classList.add('border-solid', 'border-slate-200');
-                    imgContainer.innerHTML = `<img src="${slot.imageUrl}" alt="${slot.naam}" class="max-w-full max-h-full object-contain p-2">`;
+                    imgContainer.innerHTML = `<img src="${slot.imageUrl}" alt="${slot.naam}" class="w-full h-full object-contain p-2">`;
                 } else {
                     // Leeg vlak met plusje
                     imgContainer.innerHTML = `
