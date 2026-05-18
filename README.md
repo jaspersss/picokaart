@@ -12,6 +12,8 @@ In de zoektocht naar hulpmiddelen merkte ik hoe frustrerend het was om even snel
 
 Ik dacht: **dit moet sneller, simpeler en vooral menselijker.** Daarom heb ik `pictokaart.nl` gebouwd.
 
+Laat vooral je ervaringen weten, omdat we geen gegevens verzemelen weten we ook niet hoevaak en hoe het gebruikt wordt, laat het weten.
+
 ---
 
 ## Het Doel
@@ -22,7 +24,7 @@ Of het nu gaat om een ochtendritueel voor een cliënt in een zorginstelling, of 
 
 ### De uitgangspunten:
 *   **Geen accounts of gedoe:** Direct naar de website, klikken, typen en printen.
-*   **100% Privacy-proof (AVG):** Er wordt geen enkele vorm van data opgeslagen of verzonden. Alle cliëntgegevens en teksten blijven strikt op de computer van de gebruiker staan.
+*   **Privacy first:** Er wordt geen enkele vorm van data opgeslagen of verzonden. Alle cliëntgegevens en teksten blijven strikt op de computer van de gebruiker staan. je ziet ook geen cookiebanner, omdat we gewoonweg geen cookies hebben.
 *   **Altijd passend:** De kaarten zijn zo geprogrammeerd dat ze áltijd perfect op één A4-tje passen.
 
 ---
