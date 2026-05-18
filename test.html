@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pictokaart.nl powered by Beehub.io - Gratis en Simpel Pictogrammenkaarten Maken</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS (CDN voor snelle implementatie) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        brand: { 50: '#f0fdfa', 600: '#0d9488', 700: '#0f766e' } // Kalm zorg-teal
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Basis styling voor inputs om ze 'onzichtbaar' te maken totdat je typt of hovert */
+        .picto-input {
+            border: 1px dashed transparent;
+            background: transparent;
+            transition: all 0.2s;
+        }
+        .picto-input:hover, .picto-input:focus {
+            border-color: #cbd5e1; /* leisteengrijs */
+            background: white;
+            outline: none;
+        }
+
+        /* --- SCHONE PRINT STYLING --- */
+        @media print {
+            html, body { 
+                width: 100% !important; 
+                height: 100% !important; 
+                margin: 0 !important; 
+                padding: 0 !important; 
+                background-color: white !important;
+            }
+            
+            #ui-header, #modal-welcome, #modal-wizard, #modal-icon-picker { display: none !important; }
+            
+            #workspace { 
+                display: block !important; 
+                padding: 0 !important; 
+                margin: 0 !important; 
+                position: relative !important;
+                height: 100% !important; 
+                width: 100% !important; 
+                overflow: hidden !important; /* Voorkomt de lege tweede pagina */
+            }
+            
+            #canvas-wrapper {
+                display: flex !important;
+                aspect-ratio: auto !important; /* Heel belangrijk: negeer de scherm-ratio op papier! */
+                box-shadow: none !important;
+                border: none !important;
+                border-radius: 0 !important;
+                margin: 0 !important;
+                padding: 5mm 5mm 10mm 5mm !important;
+                overflow: hidden !important;
+                box-sizing: border-box !important;
+            }
+
+            /* Portait instellingen (Standaard) */
+            body.print-portrait #canvas-wrapper {
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                max-width: none !important;
+                max-height: none !important;
+            }
+
+            /* Landscape instellingen (Gedwongen rotatie op Portrait papier) */
+            body.print-landscape #canvas-wrapper {
+                position: absolute !important;
+                top: 50% !important;
+                left: 50% !important;
+                width: 270mm !important; /* Veilige breedte (wordt hoogte op papier) */
+                height: 190mm !important; /* Veilige hoogte (wordt breedte op papier) */
+                max-width: none !important;
+                max-height: none !important;
+                transform: translate(-50%, -50%) rotate(90deg) !important;
+            }
+
+            .empty-slot { border: none !important; }
+            .empty-slot-icon { display: none !important; }
+            .picto-input { 
+                border: none !important; 
+                background: transparent !important; 
+                box-shadow: none !important; 
+                outline: none !important; 
+                -webkit-appearance: none !important;
+                appearance: none !important;
+                text-overflow: ellipsis !important;
+            }
+            .picto-input::placeholder { color: transparent !important; }
+            
+            #print-footer { 
+                display: flex !important; 
+                position: absolute !important; 
+                bottom: 3mm !important; 
+                left: 5mm !important; 
+                right: 5mm !important; 
+            }
+        }
+        
+        /* Standaard is footer onzichtbaar op scherm */
+        #print-footer { display: none; }
+        
+        /* A4 Aspect Ratios voor op het scherm */
+        .aspect-portrait { aspect-ratio: 210 / 297; }
+        .aspect-landscape { aspect-ratio: 297 / 210; }
+    </style>
+    <!-- Vaste stijl: ALTIJD portrait voor de printer, landcape wordt gedraaid via CSS! -->
+    <style id="page-style" media="print">
+        @page { 
+            size: portrait !important; 
+            margin: 0;
+            /* Leegmaken van de standaard browser print-info */
+            @top-left { content: '' } @top-center { content: '' } @top-right { content: '' }
+            @bottom-left { content: '' } @bottom-center { content: '' } @bottom-right { content: '' }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-screen flex flex-col font-sans overflow-hidden">
+
+    <!-- 1. HEADER & CONTROLS -->
+    <header id="ui-header" class="bg-white shadow-sm border-b border-slate-200 p-4 flex justify-between items-center hidden z-10 relative">
+        <div class="font-bold text-xl text-brand-700 flex items-center gap-2">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            pictokaart.nl <span class="text-sm font-medium text-slate-500 ml-1">powered by <a href="https://beehub.io" target="_blank" class="text-brand-600 hover:underline">Beehub.io</a></span>
+            <a href="https://github.com/jaspersss/picokaart" target="_blank" title="Bekijk de broncode van dit project op GitHub" class="text-slate-300 hover:text-slate-700 transition ml-2 flex items-center">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"></path></svg>
+            </a>
+            <div class="h-4 w-px bg-slate-300 ml-2"></div>
+            <span class="text-sm font-medium text-slate-500 ml-2">
+                Iconen afkomstig van: 
+                <a href="https://www.sclera.be/" target="_blank" title="Licentie & Pictogrammen via Sclera.be (CC BY-NC-SA)" class="text-brand-600 hover:underline">© Sclera.be</a>
+            </span>
+        </div>
+        <div class="flex gap-3">
+            <button onclick="saveJson()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition">
+                💾 Opslaan
+            </button>
+            <input type="file" id="file-upload" class="hidden" accept=".json" onchange="loadJson(event)">
+            <button onclick="document.getElementById('file-upload').click()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition">
+                📂 Openen
+            </button>
+            <button onclick="window.print()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg font-medium shadow-sm transition flex items-center gap-2">
+                🖨️ Maak PDF / Print
+            </button>
+        </div>
+    </header>
+
+    <!-- 2. WORKSPACE (Hierin 'zweeft' het A4tje) -->
+    <main id="workspace" class="flex-1 overflow-auto p-8 flex justify-center items-center bg-slate-100 hidden">
+        
+        <!-- Het A4 Canvas -->
+        <div id="canvas-wrapper" class="bg-white shadow-xl border border-slate-200 rounded-sm relative flex flex-col p-[5mm] pb-[10mm] transition-all duration-300 w-full max-h-full min-h-0 overflow-hidden">
+            
+            <!-- Optionele Titel -->
+            <input type="text" id="canvas-title" placeholder="Klik hier om een titel te typen..." class="picto-input w-full min-w-0 text-center text-3xl font-bold mb-2 hidden shrink-0" maxlength="40" onkeyup="updateTitle(this.value)">
+            
+            <!-- Het Grid -->
+            <div id="canvas-grid" class="grid gap-2 flex-1 w-full min-h-0">
+                <!-- Wordt gevuld via JavaScript -->
+            </div>
+
+            <!-- Print Footer (Alleen zichtbaar op papier) -->
+            <div id="print-footer" class="absolute bottom-[3mm] left-[5mm] right-[5mm] justify-between text-[10px] text-slate-500 font-medium">
+                <span>Gratis pictogrammenkaarten maken via pictokaart.nl powered by <a href="https://beehub.io" target="_blank" class="hover:underline">Beehub.io</a></span>
+                <span>Pictogrammen via Sclera.be (CC BY-NC-SA)</span>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- 3. MODAL: WELKOM & PRIVACY -->
+    <div id="modal-welcome" class="fixed inset-0 bg-slate-900/40 flex items-center justify-center z-50 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
+            <div class="w-16 h-16 bg-brand-50 text-brand-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+            </div>
+            <h2 class="text-2xl font-bold mb-2">Welkom bij pictokaart.nl <span class="text-base font-medium text-slate-500 block sm:inline mt-1 sm:mt-0">powered by <a href="https://beehub.io" target="_blank" class="text-brand-600 hover:underline">Beehub.io</a></span></h2>
+            <p class="text-slate-600 mb-6 text-sm leading-relaxed">
+                Maak binnen een minuut eenvoudig een pictogrammenkaart voor je cliënt of familielid. <br><br>
+                <strong class="text-slate-800">Veilig & Privacyvriendelijk:</strong> Alles wat je hier typt of kiest, blijft strikt op jouw eigen computer. Wij slaan niets op en kijken niet mee.
+            </p>
+            <div class="flex flex-col gap-3">
+                <button onclick="showWizard()" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-medium text-lg transition shadow-sm">
+                    ➕ Start een nieuwe kaart
+                </button>
+                <button onclick="document.getElementById('file-upload').click()" class="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-medium transition">
+                    📂 Open een opgeslagen kaart (.json)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. MODAL: LAYOUT WIZARD -->
+    <div id="modal-wizard" class="fixed inset-0 bg-slate-900/40 items-center justify-center z-50 backdrop-blur-sm hidden flex">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full p-8 max-h-[90vh] overflow-y-auto">
+            <h2 class="text-2xl font-bold mb-6 text-center">Hoe wil je de kaart indelen?</h2>
+            
+            <!-- Vraag 1: Titel -->
+            <div class="flex items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-200 mb-8">
+                <span class="font-medium">Wil je een hoofdtitel boven de kaart?</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="toggle-title" class="sr-only peer" checked>
+                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-600"></div>
+                </label>
+            </div>
+
+            <!-- Vraag 2: Grids -->
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-700 mb-3 border-b pb-2">📄 Staand (Portrait)</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <!-- Tegel 1x4 -->
+                        <button onclick="initGrid('1x4')" class="border-2 border-slate-200 hover:border-brand-600 rounded-xl p-4 transition text-center group bg-white">
+                            <div class="w-full aspect-[210/297] bg-slate-100 border border-slate-300 rounded grid grid-cols-1 grid-rows-4 gap-1 p-1 mb-2 group-hover:bg-brand-50">
+                                <div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div>
+                            </div>
+                            <span class="font-bold block">1 x 4</span>
+                            <span class="text-xs text-slate-500">Het Stappenplan</span>
+                        </button>
+                        <!-- Tegel 2x3 -->
+                        <button onclick="initGrid('2x3')" class="border-2 border-slate-200 hover:border-brand-600 rounded-xl p-4 transition text-center group bg-white">
+                            <div class="w-full aspect-[210/297] bg-slate-100 border border-slate-300 rounded grid grid-cols-2 grid-rows-3 gap-1 p-1 mb-2 group-hover:bg-brand-50">
+                                <div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div>
+                            </div>
+                            <span class="font-bold block">2 x 3</span>
+                            <span class="text-xs text-slate-500">De Rustige Kaart</span>
+                        </button>
+                        <!-- Tegel 3x4 -->
+                        <button onclick="initGrid('3x4')" class="border-2 border-slate-200 hover:border-brand-600 rounded-xl p-4 transition text-center group bg-white">
+                            <div class="w-full aspect-[210/297] bg-slate-100 border border-slate-300 rounded grid grid-cols-3 grid-rows-4 gap-0.5 p-1 mb-2 group-hover:bg-brand-50">
+                                <div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div>
+                            </div>
+                            <span class="font-bold block">3 x 4</span>
+                            <span class="text-xs text-slate-500">Het Dagschema</span>
+                        </button>
+                        <!-- Tegel 4x5 -->
+                        <button onclick="initGrid('4x5')" class="border-2 border-slate-200 hover:border-brand-600 rounded-xl p-4 transition text-center group bg-white">
+                            <div class="w-full aspect-[210/297] bg-slate-100 border border-slate-300 rounded grid grid-cols-4 grid-rows-5 gap-0.5 p-1 mb-2 group-hover:bg-brand-50">
+                                <!-- 20 divs (simulatie) -->
+                                <div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div>
+                            </div>
+                            <span class="font-bold block">4 x 5</span>
+                            <span class="text-xs text-slate-500">Intensief</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-bold text-slate-700 mb-3 border-b pb-2 mt-4">🖥️ Liggend (Landscape)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Tegel 4x2 -->
+                        <button onclick="initGrid('4x2')" class="border-2 border-slate-200 hover:border-brand-600 rounded-xl p-4 transition text-center group bg-white">
+                            <div class="w-full aspect-[297/210] bg-slate-100 border border-slate-300 rounded grid grid-cols-4 grid-rows-2 gap-1 p-1 mb-2 group-hover:bg-brand-50">
+                                <div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div>
+                            </div>
+                            <span class="font-bold block">4 x 2</span>
+                            <span class="text-xs text-slate-500">Het Planbord</span>
+                        </button>
+                        <!-- Tegel 5x3 -->
+                        <button onclick="initGrid('5x3')" class="border-2 border-slate-200 hover:border-brand-600 rounded-xl p-4 transition text-center group bg-white">
+                            <div class="w-full aspect-[297/210] bg-slate-100 border border-slate-300 rounded grid grid-cols-5 grid-rows-3 gap-1 p-1 mb-2 group-hover:bg-brand-50">
+                                <div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div>
+                            </div>
+                            <span class="font-bold block">5 x 3</span>
+                            <span class="text-xs text-slate-500">Weekplanner</span>
+                        </button>
+                        <!-- Tegel 5x4 -->
+                        <button onclick="initGrid('5x4')" class="border-2 border-slate-200 hover:border-brand-600 rounded-xl p-4 transition text-center group bg-white">
+                            <div class="w-full aspect-[297/210] bg-slate-100 border border-slate-300 rounded grid grid-cols-5 grid-rows-4 gap-0.5 p-1 mb-2 group-hover:bg-brand-50">
+                                <div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div><div class="bg-white border border-slate-200 rounded-sm"></div>
+                            </div>
+                            <span class="font-bold block">5 x 4</span>
+                            <span class="text-xs text-slate-500">Overzicht</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button onclick="closeWizard()" class="text-slate-500 hover:text-slate-800 underline text-sm hidden" id="btn-cancel-wizard">Annuleren</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. MODAL: ICOON KIEZER -->
+    <div id="modal-icon-picker" class="fixed inset-0 bg-slate-900/60 items-center justify-center z-50 backdrop-blur-sm hidden flex">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full flex flex-col h-[85vh]">
+            <!-- Header & Zoeken -->
+            <div class="p-6 border-b border-slate-200 bg-slate-50 rounded-t-2xl relative">
+                <button onclick="closeIconPicker()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 bg-white rounded-full p-1 shadow-sm">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+                <h3 class="text-xl font-bold mb-4">Kies een pictogram</h3>
+                <div class="flex gap-2">
+                    <input type="text" id="icon-search" placeholder="Typ hier om te zoeken in meer als 10000 pictogrammen" class="w-full p-4 rounded-xl border border-slate-300 shadow-sm focus:border-brand-600 focus:ring-2 focus:ring-brand-100 text-lg" onkeyup="filterIcons(this.value)">
+                    <button onclick="selectIcon('', null)" class="px-4 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-xl font-medium transition whitespace-nowrap flex items-center gap-2" title="Maak dit vakje weer leeg">
+                        <svg class="w-5 h-5 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        Wissen
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Snelknoppen & Resultaten -->
+            <div class="flex-1 overflow-y-auto p-6" id="icon-results">
+                <!-- Categorieën worden hier gegenereerd -->
+            </div>
+        </div>
+    </div>
+
+    <!-- --- JAVASCRIPT LOGICA --- -->
+    <script>
+        // --- 1. CONFIGURATIE & DATA ---
+        
+        // MAPPING: Layout instellingen en bijbehorende Tailwind Grid classes
+        const layoutConfig = {
+            '1x4': { total: 4,  orientation: 'portrait',  gridClass: 'grid-cols-1 grid-rows-4' },
+            '2x3': { total: 6,  orientation: 'portrait',  gridClass: 'grid-cols-2 grid-rows-3' },
+            '3x4': { total: 12, orientation: 'portrait',  gridClass: 'grid-cols-3 grid-rows-4' },
+            '4x5': { total: 20, orientation: 'portrait',  gridClass: 'grid-cols-4 grid-rows-5' },
+            '4x2': { total: 8,  orientation: 'landscape', gridClass: 'grid-cols-4 grid-rows-2' },
+            '5x3': { total: 15, orientation: 'landscape', gridClass: 'grid-cols-5 grid-rows-3' },
+            '5x4': { total: 20, orientation: 'landscape', gridClass: 'grid-cols-5 grid-rows-4' }
+        };
+
+        // DE TOP 50 ZORGTERMEN
+        const top50Categories = [
+            { naam: "Dagritme", iconen: [
+                { naam: "Opstaan", file: "bed_opstaan.png" },
+                { naam: "Slapen", file: "slapen.png" },
+                { naam: "Ochtend", file: "ochtend.png" },
+                { naam: "Middag", file: "middag.png" },
+                { naam: "Avond", file: "avond.png" },
+                { naam: "Nacht", file: "nacht.png" },
+                { naam: "Rusten", file: "rusten_slaapkamer.png" }
+            ]},
+            { naam: "Verzorging", iconen: [
+                { naam: "Douchen", file: "douchen.png" },
+                { naam: "Wassen", file: "bad.png" },
+                { naam: "Tanden poetsen", file: "tanden_poetsen.png" },
+                { naam: "Naar de wc", file: "wc.png" },
+                { naam: "Aankleden", file: "aankleden.png" },
+                { naam: "Uitkleden", file: "uitkleden.png" },
+                { naam: "Scheren", file: "scheren.png" },
+                { naam: "Haar kammen", file: "haar_kammen.png" },
+                { naam: "Handen wassen", file: "handen_wassen_klassieke_kraan.png" }
+            ]},
+            { naam: "Eten & Drinken", iconen: [
+                { naam: "Ontbijt", file: "ontbijt.png" },
+                { naam: "Lunch", file: "middagmaal.png" },
+                { naam: "Avondeten", file: "avondmaal.png" },
+                { naam: "Koffie drinken", file: "koffie.png" },
+                { naam: "Thee drinken", file: "thee.png" },
+                { naam: "Drinken", file: "drinken.png" },
+                { naam: "Fruit eten", file: "fruit.png" },
+                { naam: "Snoepje", file: "snoepje.png" }
+            ]},
+            { naam: "Medisch & Zorg", iconen: [
+                { naam: "Medicijnen", file: "medicatie.png" },
+                { naam: "Dokter", file: "dokter.png" },
+                { naam: "Fysiotherapie", file: "fysiotherapie.png" },
+                { naam: "Tandarts", file: "tandarts.png" },
+                { naam: "Kapper", file: "kapper.png" },
+                { naam: "Bloeddruk", file: "bloeddruk_meten.png" },
+                { naam: "Ziekenhuis", file: "ziekenhuis.png" }
+            ]},
+            { naam: "Vrije Tijd", iconen: [
+                { naam: "Wandelen", file: "wandelen.png" },
+                { naam: "Televisie", file: "tv_kijken.png" },
+                { naam: "Lezen", file: "lezen.png" },
+                { naam: "Muziek", file: "muziek_luisteren.png" },
+                { naam: "Spelletje", file: "spelletjes.png" },
+                { naam: "Puzzelen", file: "puzzelen.png" },
+                { naam: "Hobby", file: "knutselen.png" },
+                { naam: "Computer", file: "computer.png" }
+            ]},
+            { naam: "Sociaal & Locatie", iconen: [
+                { naam: "Visite", file: "op_bezoek.png" },
+                { naam: "Bellen", file: "telefoneren.png" },
+                { naam: "Thuis", file: "thuis.png" },
+                { naam: "Dagbesteding", file: "dagbesteding.png" },
+                { naam: "Boodschappen", file: "winkelen.png" },
+                { naam: "Taxi", file: "taxi.png" }
+            ]},
+            { naam: "Gevoel", iconen: [
+                { naam: "Pijn", file: "pijn.png" },
+                { naam: "Moe", file: "moe.png" },
+                { naam: "Blij", file: "blij.png" },
+                { naam: "Verdrietig", file: "verdrietig.png" },
+                { naam: "Praten", file: "praten.png" }
+            ]}
+        ];
+
+        // Wordt gevuld met objecten: [{ displayName: 'Zitten', fileName: 'zitten.png' }, ...]
+        let alleIconen = []; 
+
+        // Haal de lijst op via een lokaal tekstbestand (voorkomt API limieten en is sneller)
+        async function laadIconenVanGithub() {
+            try {
+                const response = await fetch('iconen.txt');
+                if (response.ok) {
+                    const tekst = await response.text();
+                    const bestanden = tekst.split('\n').filter(line => line.trim().endsWith('.png'));
+                    
+                    const githubIconen = bestanden.map(fileName => {
+                            const cleanFileName = fileName.trim();
+                            let displayName = cleanFileName.replace('.png', '').replace(/_/g, ' ');
+                            displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+                            return { displayName: displayName, fileName: cleanFileName };
+                        });
+                    if (githubIconen.length > 0) {
+                        alleIconen = githubIconen;
+                    }
+                }
+            } catch (error) {
+                console.warn("Kon iconen.txt niet ophalen, we gebruiken de standaard lijst.", error);
+            }
+        }
+
+        // --- 2. APPLICATIE STATE ---
+        let AppState = {
+            titel: "",
+            heeftTitel: true,
+            layout: "3x4", // default
+            slots: [] // [{ id: 0, naam: "", imageUrl: "" }, ...]
+        };
+
+        let activeSlotId = null; // Houdt bij welk vakje we nu bewerken in de popup
+
+        // --- 3. CORE FUNCTIES ---
+
+        function init() {
+            laadIconenVanGithub();
+            // Toon de welcome modal bij het openen van de site
+            document.getElementById('modal-welcome').classList.remove('hidden');
+        }
+
+        function showWizard() {
+            document.getElementById('modal-welcome').classList.add('hidden');
+            document.getElementById('modal-wizard').classList.remove('hidden');
+            // Als we al een grid hadden, toon de annuleer knop
+            if(AppState.slots.length > 0) {
+                document.getElementById('btn-cancel-wizard').classList.remove('hidden');
+            }
+        }
+
+        function closeWizard() {
+            document.getElementById('modal-wizard').classList.add('hidden');
+        }
+
+        function initGrid(layoutKey) {
+            AppState.layout = layoutKey;
+            AppState.heeftTitel = document.getElementById('toggle-title').checked;
+            
+            const config = layoutConfig[layoutKey];
+            
+            // Maak lege slots aan
+            AppState.slots = [];
+            for(let i=0; i<config.total; i++) {
+                AppState.slots.push({ id: i, naam: "", imageUrl: "" });
+            }
+            
+            // Verberg popups en toon workspace
+            closeWizard();
+            document.getElementById('modal-welcome').classList.add('hidden');
+            document.getElementById('ui-header').classList.remove('hidden');
+            document.getElementById('workspace').classList.remove('hidden');
+            
+            renderCanvas();
+        }
+
+        function renderCanvas() {
+            const wrapper = document.getElementById('canvas-wrapper');
+            const grid = document.getElementById('canvas-grid');
+            const titleInput = document.getElementById('canvas-title');
+            
+            const config = layoutConfig[AppState.layout];
+
+            // 1. Titel logica
+            if(AppState.heeftTitel) {
+                titleInput.classList.remove('hidden');
+                titleInput.value = AppState.titel;
+            } else {
+                titleInput.classList.add('hidden');
+            }
+
+            // 2. Aspect Ratio & Printer Orientation
+            wrapper.classList.remove('aspect-portrait', 'aspect-landscape');
+            
+            if(config.orientation === 'portrait') {
+                wrapper.classList.add('aspect-portrait');
+                wrapper.style.height = '100%';
+                wrapper.style.width = 'auto';
+                document.body.classList.add('print-portrait');
+                document.body.classList.remove('print-landscape');
+            } else {
+                wrapper.classList.add('aspect-landscape');
+                wrapper.style.width = '100%';
+                wrapper.style.height = 'auto';
+                document.body.classList.add('print-landscape');
+                document.body.classList.remove('print-portrait');
+            }
+
+            // 3. Grid Classes toepassen
+            grid.className = `grid gap-2 flex-1 w-full min-h-0 ${config.gridClass}`;
+
+            // 4. Slots Genereren
+            grid.innerHTML = ''; // Leegmaken
+            
+            AppState.slots.forEach(slot => {
+                const slotDiv = document.createElement('div');
+                slotDiv.className = "flex flex-col items-center justify-between gap-1 p-1 min-h-0 min-w-0 h-full overflow-hidden";
+                
+                // Afbeelding Vlak
+                const imgContainer = document.createElement('div');
+                imgContainer.className = "w-full flex-1 flex items-center justify-center rounded-xl overflow-hidden cursor-pointer group empty-slot border-2 border-dashed border-slate-300 hover:border-brand-500 hover:bg-brand-50 transition relative min-h-0";
+                imgContainer.onclick = () => openIconPicker(slot.id);
+
+                if(slot.imageUrl !== "") {
+                    // Er is een afbeelding
+                    imgContainer.classList.remove('border-dashed', 'border-slate-300', 'hover:border-brand-500');
+                    imgContainer.classList.add('border-solid', 'border-slate-200');
+                    imgContainer.innerHTML = `<img src="${slot.imageUrl}" alt="${slot.naam}" class="w-full h-full object-contain p-1">`;
+                } else {
+                    // Leeg vlak met plusje
+                    imgContainer.innerHTML = `
+                        <div class="empty-slot-icon flex flex-col items-center text-slate-400 group-hover:text-brand-600 transition">
+                            <svg class="w-8 h-8 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                            <span class="text-sm font-medium">Kies icoon</span>
+                        </div>
+                    `;
+                }
+
+                // Tekst Vlak
+                const textInput = document.createElement('input');
+                textInput.type = "text";
+                textInput.className = "picto-input w-full min-w-0 text-center font-semibold text-lg md:text-xl rounded p-1 shrink-0";
+                textInput.placeholder = "Typ tekst...";
+                textInput.maxLength = 40;
+                textInput.value = slot.naam;
+                textInput.onkeyup = (e) => updateSlotText(slot.id, e.target.value);
+
+                slotDiv.appendChild(imgContainer);
+                slotDiv.appendChild(textInput);
+                grid.appendChild(slotDiv);
+            });
+        }
+
+        // --- 4. ICON PICKER LOGICA ---
+
+        function openIconPicker(slotId) {
+            activeSlotId = slotId;
+            document.getElementById('modal-icon-picker').classList.remove('hidden');
+            document.getElementById('icon-search').value = "";
+            renderIconCategories();
+            document.getElementById('icon-search').focus();
+        }
+
+        function closeIconPicker() {
+            document.getElementById('modal-icon-picker').classList.add('hidden');
+            activeSlotId = null;
+        }
+
+        function renderIconCategories() {
+            const container = document.getElementById('icon-results');
+            container.innerHTML = '';
+
+            top50Categories.forEach(cat => {
+                const section = document.createElement('div');
+                section.className = "mb-8";
+                section.innerHTML = `<h4 class="text-slate-500 font-bold mb-3 uppercase tracking-wider text-sm border-b pb-1">${cat.naam}</h4>`;
+                
+                const btnGrid = document.createElement('div');
+                btnGrid.className = "grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3";
+                
+                cat.iconen.forEach(icoon => {
+                    const btn = document.createElement('button');
+                    btn.className = "flex items-center justify-center p-2 bg-white border border-slate-200 hover:border-brand-600 hover:bg-brand-50 rounded-lg transition shadow-sm aspect-square";
+                    btn.title = icoon.naam;
+                    
+                    const img = document.createElement('img');
+                    img.src = `images/sclera/${icoon.file}`;
+                    img.alt = icoon.naam;
+                    img.className = "w-full h-full object-contain";
+                    img.loading = "lazy";
+                    
+                    btn.onclick = () => selectIcon(icoon.naam, icoon.file);
+                    btn.appendChild(img);
+                    btnGrid.appendChild(btn);
+                });
+
+                section.appendChild(btnGrid);
+                container.appendChild(section);
+            });
+        }
+
+        function selectIcon(displayName, fileName = null) {
+            if(activeSlotId === null) return;
+            
+            let finalFileName = fileName;
+
+            // Als de bestandsnaam niet direct is meegegeven (bv. via een categorieknop),
+            // proberen we de juiste, originele bestandsnaam op te zoeken in onze complete lijst.
+            if (!finalFileName && displayName) {
+                const foundIcon = alleIconen.find(icon => icon.displayName.toLowerCase() === displayName.toLowerCase());
+                if (foundIcon) {
+                    finalFileName = foundIcon.fileName;
+                }
+            }
+            
+            // Als we een bestandsnaam hebben, maken we de URL. Anders blijft de afbeelding leeg (voor custom tekst).
+            const imageUrl = finalFileName ? `images/sclera/${finalFileName}` : "";
+            
+            // Update State
+            AppState.slots[activeSlotId].naam = displayName;
+            AppState.slots[activeSlotId].imageUrl = imageUrl;
+            
+            closeIconPicker();
+            renderCanvas();
+        }
+
+        function filterIcons(query) {
+            const container = document.getElementById('icon-results');
+            const cleanQuery = query.toLowerCase().trim();
+            
+            if(cleanQuery.length > 0) {
+                // Zoek in de 'displayName' van de icoon-objecten
+                const resultaten = alleIconen.filter(icoon => icoon.displayName.toLowerCase().includes(cleanQuery));
+                container.innerHTML = ''; // Maak resultatenvenster leeg
+
+                // Als we resultaten hebben, toon ze als knoppen
+                if(resultaten.length > 0) {
+                    const section = document.createElement('div');
+                    section.className = "mb-8";
+                    section.innerHTML = '<h4 class="text-slate-500 font-bold mb-3 uppercase tracking-wider text-sm border-b pb-1">Zoekresultaten</h4>';
+                    
+                    const btnGrid = document.createElement('div');
+                    btnGrid.className = "grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3";
+                    
+                    resultaten.forEach(icoonObj => {
+                        const btn = document.createElement('button');
+                        btn.className = "flex items-center justify-center p-2 bg-white border border-slate-200 hover:border-brand-600 hover:bg-brand-50 rounded-lg transition shadow-sm aspect-square";
+                        btn.title = icoonObj.displayName;
+                        
+                        const img = document.createElement('img');
+                        img.src = `images/sclera/${icoonObj.fileName}`;
+                        img.alt = icoonObj.displayName;
+                        img.className = "w-full h-full object-contain";
+                        img.loading = "lazy";
+                        
+                        // Geef zowel de weergavenaam als de exacte bestandsnaam door
+                        btn.onclick = () => selectIcon(icoonObj.displayName, icoonObj.fileName);
+                        btn.appendChild(img);
+                        btnGrid.appendChild(btn);
+                    });
+                    section.appendChild(btnGrid);
+                    container.appendChild(section);
+                }
+
+                // Toon altijd de fallback: plaats de tekst als er (nog) geen icoon voor is
+                const customDiv = document.createElement('div');
+                customDiv.className = "text-center py-10 border-t border-slate-200 mt-4";
+                customDiv.innerHTML = `
+                    <p class="text-slate-500 mb-4">Niet gevonden wat je zocht, of wil je tekst zonder plaatje? Gebruik dit als label:</p>
+                    <button onclick="selectIcon('${query}')" class="px-6 py-3 bg-brand-600 text-white rounded-xl font-bold shadow-md hover:bg-brand-700">
+                        Plaats: "${query}"
+                    </button>
+                `;
+                container.appendChild(customDiv);
+
+            } else {
+                renderIconCategories();
+            }
+        }
+
+        // --- 5. DATA MANAGEMENT (UPDATE, SAVE, LOAD) ---
+
+        function updateTitle(val) { AppState.titel = val; }
+        function updateSlotText(id, val) { AppState.slots[id].naam = val; }
+
+        function saveJson() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(AppState));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href",     dataStr);
+            downloadAnchorNode.setAttribute("download", "pictokaart_export.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        function loadJson(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const loadedState = JSON.parse(e.target.result);
+                    // Valideer of het een geldige state is
+                    if(loadedState.layout && loadedState.slots) {
+                        AppState = loadedState;
+                        // Synchroniseer de wizard toggle met de geladen data
+                        document.getElementById('toggle-title').checked = AppState.heeftTitel;
+                        
+                        document.getElementById('modal-welcome').classList.add('hidden');
+                        document.getElementById('ui-header').classList.remove('hidden');
+                        document.getElementById('workspace').classList.remove('hidden');
+                        renderCanvas();
+                    } else {
+                        alert("Dit bestand lijkt geen geldige pictokaart te zijn.");
+                    }
+                } catch(err) {
+                    alert("Er ging iets mis bij het lezen van het bestand.");
+                }
+            };
+            reader.readAsText(file);
+            // Reset de input zodat je hetzelfde bestand nog een keer kunt inladen
+            event.target.value = ''; 
+        }
+
+        // --- 6. START! ---
+        window.onload = init;
+
+    </script>
+</body>
+</html>
