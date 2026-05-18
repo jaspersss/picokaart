@@ -40,15 +40,15 @@
 
         /* --- PRINT STYLING (Dit zorgt voor de 1-pagina garantie en verbergt UI) --- */
         @media print {
-            @page { margin: 0; }
-            body { background: white; margin: 0; padding: 0; }
+            html, body { display: block !important; width: 100% !important; height: 100% !important; background: white !important; margin: 0 !important; padding: 0 !important; overflow: hidden !important; }
             
             /* Verberg de hele UI behalve het canvas */
             #ui-header, #modal-welcome, #modal-wizard, #modal-icon-picker { display: none !important; }
-            #workspace { padding: 0 !important; margin: 0 !important; background: transparent !important; }
+            #workspace { display: block !important; padding: 0 !important; margin: 0 !important; background: transparent !important; height: 100% !important; width: 100% !important; }
             
             /* Forceer canvas over de hele pagina zonder schaduwen */
             #canvas-wrapper {
+                display: flex !important;
                 box-shadow: none !important;
                 border: none !important;
                 border-radius: 0 !important;
@@ -57,15 +57,23 @@
                 max-width: none !important;
                 max-height: none !important;
                 margin: 0 !important;
-                padding: 10mm !important; /* Veilige printmarge */
+                padding: 5mm 5mm 10mm 5mm !important; /* Veilige printmarge, extra onderaan voor tekst */
                 overflow: visible !important;
                 page-break-inside: avoid;
             }
 
             /* Verberg placeholder stippellijntjes en lege velden bij printen */
-            .empty-slot { border-color: transparent !important; border-style: solid !important; }
+            .empty-slot { border: none !important; }
             .empty-slot-icon { display: none !important; }
-            .picto-input { border-color: transparent !important; border-style: solid !important; background: transparent !important; box-shadow: none !important; outline: none !important; }
+            .picto-input { 
+                border: none !important; 
+                background: transparent !important; 
+                box-shadow: none !important; 
+                outline: none !important; 
+                -webkit-appearance: none !important;
+                appearance: none !important;
+                text-overflow: ellipsis !important;
+            }
             .picto-input::placeholder { color: transparent !important; }
             
             /* Toon de footer! */
@@ -113,10 +121,10 @@
     <main id="workspace" class="flex-1 overflow-auto p-8 flex justify-center items-center bg-slate-100 hidden">
         
         <!-- Het A4 Canvas -->
-        <div id="canvas-wrapper" class="bg-white shadow-xl border border-slate-200 rounded-sm relative flex flex-col p-[10mm] transition-all duration-300 w-full max-h-full min-h-0 overflow-hidden">
+        <div id="canvas-wrapper" class="bg-white shadow-xl border border-slate-200 rounded-sm relative flex flex-col p-[5mm] pb-[10mm] transition-all duration-300 w-full max-h-full min-h-0 overflow-hidden">
             
             <!-- Optionele Titel -->
-            <input type="text" id="canvas-title" placeholder="Klik hier om een titel te typen..." class="picto-input w-full text-center text-3xl font-bold mb-3 hidden shrink-0" maxlength="40" onkeyup="updateTitle(this.value)">
+            <input type="text" id="canvas-title" placeholder="Klik hier om een titel te typen..." class="picto-input w-full min-w-0 text-center text-3xl font-bold mb-2 hidden shrink-0" maxlength="40" onkeyup="updateTitle(this.value)">
             
             <!-- Het Grid -->
             <div id="canvas-grid" class="grid gap-2 flex-1 w-full min-h-0">
@@ -124,7 +132,7 @@
             </div>
 
             <!-- Print Footer (Alleen zichtbaar op papier) -->
-            <div id="print-footer" class="absolute bottom-[5mm] left-[10mm] right-[10mm] justify-between text-[10px] text-slate-500 font-medium">
+            <div id="print-footer" class="absolute bottom-[3mm] left-[5mm] right-[5mm] justify-between text-[10px] text-slate-500 font-medium">
                 <span>Gratis pictogrammenkaarten maken via www.pictokaart.nl</span>
                 <span>Pictogrammen via Sclera.be (CC BY-NC-SA)</span>
             </div>
@@ -299,7 +307,7 @@
                 { naam: "Uitkleden", file: "uitkleden.png" },
                 { naam: "Scheren", file: "scheren.png" },
                 { naam: "Haar kammen", file: "haar_kammen.png" },
-                { naam: "Handen wassen", file: "handen_wassen.png" }
+                { naam: "Handen wassen", file: "handen_wassen_klassieke_kraan.png" }
             ]},
             { naam: "Eten & Drinken", iconen: [
                 { naam: "Ontbijt", file: "ontbijt.png" },
@@ -443,24 +451,24 @@
             // 2. Aspect Ratio (Staand of Liggend instellen)
             wrapper.classList.remove('aspect-portrait', 'aspect-landscape');
             
-            // Voeg dynamisch printer instellingen toe op basis van lay-out
-            let pageStyle = document.getElementById('print-page-style');
-            if (!pageStyle) {
-                pageStyle = document.createElement('style');
-                pageStyle.id = 'print-page-style';
-                document.head.appendChild(pageStyle);
-            }
+            // Verwijder oude printer instellingen en forceer de browser om opnieuw te lezen
+            let oldStyle = document.getElementById('print-page-style');
+            if (oldStyle) oldStyle.remove();
+            
+            let pageStyle = document.createElement('style');
+            pageStyle.id = 'print-page-style';
+            document.head.appendChild(pageStyle);
 
             if(config.orientation === 'portrait') {
                 wrapper.classList.add('aspect-portrait');
                 wrapper.style.height = '100%';
                 wrapper.style.width = 'auto';
-                pageStyle.innerHTML = '@page { size: portrait; margin: 0; }';
+                pageStyle.innerHTML = '@media print { @page { size: portrait; margin: 0; } }';
             } else {
                 wrapper.classList.add('aspect-landscape');
                 wrapper.style.width = '100%';
                 wrapper.style.height = 'auto';
-                pageStyle.innerHTML = '@page { size: landscape; margin: 0; }';
+                pageStyle.innerHTML = '@media print { @page { size: landscape; margin: 0; } }';
             }
 
             // 3. Grid Classes toepassen
@@ -496,7 +504,7 @@
                 // Tekst Vlak
                 const textInput = document.createElement('input');
                 textInput.type = "text";
-                textInput.className = "picto-input w-full text-center font-semibold text-lg md:text-xl rounded p-1 shrink-0";
+                textInput.className = "picto-input w-full min-w-0 text-center font-semibold text-lg md:text-xl rounded p-1 shrink-0";
                 textInput.placeholder = "Typ tekst...";
                 textInput.maxLength = 40;
                 textInput.value = slot.naam;
