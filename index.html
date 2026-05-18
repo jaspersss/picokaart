@@ -58,13 +58,14 @@
                 max-height: none !important;
                 margin: 0 !important;
                 padding: 10mm !important; /* Veilige printmarge */
+                overflow: visible !important;
                 page-break-inside: avoid;
             }
 
             /* Verberg placeholder stippellijntjes en lege velden bij printen */
-            .empty-slot { border-color: transparent !important; }
+            .empty-slot { border-color: transparent !important; border-style: solid !important; }
             .empty-slot-icon { display: none !important; }
-            .picto-input { border-color: transparent !important; background: transparent !important; }
+            .picto-input { border-color: transparent !important; border-style: solid !important; background: transparent !important; box-shadow: none !important; outline: none !important; }
             .picto-input::placeholder { color: transparent !important; }
             
             /* Toon de footer! */
@@ -112,13 +113,13 @@
     <main id="workspace" class="flex-1 overflow-auto p-8 flex justify-center items-center bg-slate-100 hidden">
         
         <!-- Het A4 Canvas -->
-        <div id="canvas-wrapper" class="bg-white shadow-xl border border-slate-200 rounded-sm relative flex flex-col p-8 transition-all duration-300 w-full max-h-full">
+        <div id="canvas-wrapper" class="bg-white shadow-xl border border-slate-200 rounded-sm relative flex flex-col p-[10mm] transition-all duration-300 w-full max-h-full min-h-0 overflow-hidden">
             
             <!-- Optionele Titel -->
-            <input type="text" id="canvas-title" placeholder="Klik hier om een titel te typen..." class="picto-input w-full text-center text-3xl font-bold mb-6 hidden" maxlength="40" onkeyup="updateTitle(this.value)">
+            <input type="text" id="canvas-title" placeholder="Klik hier om een titel te typen..." class="picto-input w-full text-center text-3xl font-bold mb-6 hidden shrink-0" maxlength="40" onkeyup="updateTitle(this.value)">
             
             <!-- Het Grid -->
-            <div id="canvas-grid" class="grid gap-4 flex-1 w-full h-full">
+            <div id="canvas-grid" class="grid gap-4 flex-1 w-full h-full min-h-0">
                 <!-- Wordt gevuld via JavaScript -->
             </div>
 
@@ -289,6 +290,29 @@
             { naam: "Gevoel", iconen: ["Pijn", "Moe", "Blij", "Verdrietig", "Praten"] }
         ];
 
+        let alleIconen = top50Categories.reduce((acc, cat) => acc.concat(cat.iconen), []);
+
+        // Haal de échte lijst direct uit je GitHub repository!
+        async function laadIconenVanGithub() {
+            try {
+                const response = await fetch('https://api.github.com/repos/jaspersss/picokaart/contents/images/sclera');
+                if (response.ok) {
+                    const bestanden = await response.json();
+                    const githubIconen = bestanden
+                        .filter(file => file.name.endsWith('.png'))
+                        .map(file => {
+                            let ruweNaam = file.name.replace('.png', '').replace(/_/g, ' ');
+                            return ruweNaam.charAt(0).toUpperCase() + ruweNaam.slice(1);
+                        });
+                    if (githubIconen.length > 0) {
+                        alleIconen = githubIconen;
+                    }
+                }
+            } catch (error) {
+                console.warn("Kon live iconen niet ophalen, we gebruiken de standaard lijst.", error);
+            }
+        }
+
         // --- 2. APPLICATIE STATE ---
         let AppState = {
             titel: "",
@@ -302,6 +326,7 @@
         // --- 3. CORE FUNCTIES ---
 
         function init() {
+            laadIconenVanGithub();
             // Toon de welcome modal bij het openen van de site
             document.getElementById('modal-welcome').classList.remove('hidden');
         }
@@ -357,14 +382,25 @@
 
             // 2. Aspect Ratio (Staand of Liggend instellen)
             wrapper.classList.remove('aspect-portrait', 'aspect-landscape');
+            
+            // Voeg dynamisch printer instellingen toe op basis van lay-out
+            let pageStyle = document.getElementById('print-page-style');
+            if (!pageStyle) {
+                pageStyle = document.createElement('style');
+                pageStyle.id = 'print-page-style';
+                document.head.appendChild(pageStyle);
+            }
+
             if(config.orientation === 'portrait') {
                 wrapper.classList.add('aspect-portrait');
                 wrapper.style.height = '100%';
                 wrapper.style.width = 'auto';
+                pageStyle.innerHTML = '@media print { @page { size: portrait; margin: 0; } }';
             } else {
                 wrapper.classList.add('aspect-landscape');
                 wrapper.style.width = '100%';
                 wrapper.style.height = 'auto';
+                pageStyle.innerHTML = '@media print { @page { size: landscape; margin: 0; } }';
             }
 
             // 3. Grid Classes toepassen
@@ -468,19 +504,44 @@
         }
 
         function filterIcons(query) {
-            // Dit is een simpele UI simulatie. Als de gebruiker typt, zou je hier 
-            // in je uiteindelijke index.json kunnen zoeken. Voor nu laten we 
-            // gewoon de ingetypte tekst opslaan als een "custom" knop.
             const container = document.getElementById('icon-results');
-            if(query.trim().length > 0) {
-                container.innerHTML = `
-                    <div class="text-center py-10">
-                        <p class="text-slate-500 mb-4">Gebruik dit als pictogram tekst:</p>
-                        <button onclick="selectIcon('${query}')" class="px-6 py-3 bg-brand-600 text-white rounded-xl font-bold shadow-md hover:bg-brand-700">
-                            Bevestig: "${query}"
-                        </button>
-                    </div>
+            const cleanQuery = query.toLowerCase().trim();
+            
+            if(cleanQuery.length > 0) {
+                const resultaten = alleIconen.filter(icoon => icoon.toLowerCase().includes(cleanQuery));
+                container.innerHTML = ''; // Maak resultatenvenster leeg
+
+                // Als we resultaten hebben, toon ze als knoppen
+                if(resultaten.length > 0) {
+                    const section = document.createElement('div');
+                    section.className = "mb-8";
+                    section.innerHTML = '<h4 class="text-slate-500 font-bold mb-3 uppercase tracking-wider text-sm border-b pb-1">Zoekresultaten</h4>';
+                    
+                    const btnGrid = document.createElement('div');
+                    btnGrid.className = "flex flex-wrap gap-2";
+                    
+                    resultaten.forEach(icoonNaam => {
+                        const btn = document.createElement('button');
+                        btn.className = "px-4 py-2 bg-white border border-slate-200 hover:border-brand-600 hover:bg-brand-50 text-slate-700 rounded-lg font-medium transition shadow-sm whitespace-nowrap";
+                        btn.innerText = icoonNaam;
+                        btn.onclick = () => selectIcon(icoonNaam);
+                        btnGrid.appendChild(btn);
+                    });
+                    section.appendChild(btnGrid);
+                    container.appendChild(section);
+                }
+
+                // Toon altijd de fallback: plaats de tekst als er (nog) geen icoon voor is
+                const customDiv = document.createElement('div');
+                customDiv.className = "text-center py-10 border-t border-slate-200 mt-4";
+                customDiv.innerHTML = `
+                    <p class="text-slate-500 mb-4">Niet gevonden wat je zocht, of wil je tekst zonder plaatje? Gebruik dit als label:</p>
+                    <button onclick="selectIcon('${query}')" class="px-6 py-3 bg-brand-600 text-white rounded-xl font-bold shadow-md hover:bg-brand-700">
+                        Plaats: "${query}"
+                    </button>
                 `;
+                container.appendChild(customDiv);
+
             } else {
                 renderIconCategories();
             }
