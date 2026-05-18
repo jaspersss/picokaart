@@ -116,10 +116,10 @@
         <div id="canvas-wrapper" class="bg-white shadow-xl border border-slate-200 rounded-sm relative flex flex-col p-[10mm] transition-all duration-300 w-full max-h-full min-h-0 overflow-hidden">
             
             <!-- Optionele Titel -->
-            <input type="text" id="canvas-title" placeholder="Klik hier om een titel te typen..." class="picto-input w-full text-center text-3xl font-bold mb-6 hidden shrink-0" maxlength="40" onkeyup="updateTitle(this.value)">
+            <input type="text" id="canvas-title" placeholder="Klik hier om een titel te typen..." class="picto-input w-full text-center text-3xl font-bold mb-3 hidden shrink-0" maxlength="40" onkeyup="updateTitle(this.value)">
             
             <!-- Het Grid -->
-            <div id="canvas-grid" class="grid gap-4 flex-1 w-full h-full min-h-0">
+            <div id="canvas-grid" class="grid gap-2 flex-1 w-full min-h-0">
                 <!-- Wordt gevuld via JavaScript -->
             </div>
 
@@ -281,13 +281,70 @@
 
         // DE TOP 50 ZORGTERMEN
         const top50Categories = [
-            { naam: "Dagritme", iconen: ["Opstaan", "Slapen", "Ochtend", "Middag", "Avond", "Nacht", "Rusten"] },
-            { naam: "Verzorging", iconen: ["Douchen", "Wassen", "Tanden poetsen", "Naar de wc", "Aankleden", "Uitkleden", "Scheren", "Haar kammen", "Handen wassen"] },
-            { naam: "Eten & Drinken", iconen: ["Ontbijt", "Lunch", "Avondeten", "Koffie drinken", "Thee drinken", "Drinken", "Fruit eten", "Snoepje"] },
-            { naam: "Medisch & Zorg", iconen: ["Medicijnen", "Dokter", "Fysiotherapie", "Tandarts", "Kapper", "Bloeddruk", "Ziekenhuis"] },
-            { naam: "Vrije Tijd", iconen: ["Wandelen", "Televisie", "Lezen", "Muziek", "Spelletje", "Puzzelen", "Hobby", "Computer"] },
-            { naam: "Sociaal & Locatie", iconen: ["Visite", "Bellen", "Thuis", "Dagbesteding", "Boodschappen", "Taxi"] },
-            { naam: "Gevoel", iconen: ["Pijn", "Moe", "Blij", "Verdrietig", "Praten"] }
+            { naam: "Dagritme", iconen: [
+                { naam: "Opstaan", file: "bed_opstaan.png" },
+                { naam: "Slapen", file: "slapen.png" },
+                { naam: "Ochtend", file: "ochtend.png" },
+                { naam: "Middag", file: "middag.png" },
+                { naam: "Avond", file: "avond.png" },
+                { naam: "Nacht", file: "nacht.png" },
+                { naam: "Rusten", file: "rusten_slaapkamer.png" }
+            ]},
+            { naam: "Verzorging", iconen: [
+                { naam: "Douchen", file: "douchen.png" },
+                { naam: "Wassen", file: "bad.png" },
+                { naam: "Tanden poetsen", file: "tanden_poetsen.png" },
+                { naam: "Naar de wc", file: "wc.png" },
+                { naam: "Aankleden", file: "aankleden.png" },
+                { naam: "Uitkleden", file: "uitkleden.png" },
+                { naam: "Scheren", file: "scheren.png" },
+                { naam: "Haar kammen", file: "haar_kammen.png" },
+                { naam: "Handen wassen", file: "handen_wassen.png" }
+            ]},
+            { naam: "Eten & Drinken", iconen: [
+                { naam: "Ontbijt", file: "ontbijt.png" },
+                { naam: "Lunch", file: "middagmaal.png" },
+                { naam: "Avondeten", file: "avondmaal.png" },
+                { naam: "Koffie drinken", file: "koffie.png" },
+                { naam: "Thee drinken", file: "thee.png" },
+                { naam: "Drinken", file: "drinken.png" },
+                { naam: "Fruit eten", file: "fruit.png" },
+                { naam: "Snoepje", file: "snoepje.png" }
+            ]},
+            { naam: "Medisch & Zorg", iconen: [
+                { naam: "Medicijnen", file: "medicatie.png" },
+                { naam: "Dokter", file: "dokter.png" },
+                { naam: "Fysiotherapie", file: "fysiotherapie.png" },
+                { naam: "Tandarts", file: "tandarts.png" },
+                { naam: "Kapper", file: "kapper.png" },
+                { naam: "Bloeddruk", file: "bloeddruk_meten.png" },
+                { naam: "Ziekenhuis", file: "ziekenhuis.png" }
+            ]},
+            { naam: "Vrije Tijd", iconen: [
+                { naam: "Wandelen", file: "wandelen.png" },
+                { naam: "Televisie", file: "tv_kijken.png" },
+                { naam: "Lezen", file: "lezen.png" },
+                { naam: "Muziek", file: "muziek_luisteren.png" },
+                { naam: "Spelletje", file: "spelletjes.png" },
+                { naam: "Puzzelen", file: "puzzelen.png" },
+                { naam: "Hobby", file: "knutselen.png" },
+                { naam: "Computer", file: "computer.png" }
+            ]},
+            { naam: "Sociaal & Locatie", iconen: [
+                { naam: "Visite", file: "op_bezoek.png" },
+                { naam: "Bellen", file: "telefoneren.png" },
+                { naam: "Thuis", file: "thuis.png" },
+                { naam: "Dagbesteding", file: "dagbesteding.png" },
+                { naam: "Boodschappen", file: "winkelen.png" },
+                { naam: "Taxi", file: "taxi.png" }
+            ]},
+            { naam: "Gevoel", iconen: [
+                { naam: "Pijn", file: "pijn.png" },
+                { naam: "Moe", file: "moe.png" },
+                { naam: "Blij", file: "blij.png" },
+                { naam: "Verdrietig", file: "verdrietig.png" },
+                { naam: "Praten", file: "praten.png" }
+            ]}
         ];
 
         // Wordt gevuld met objecten: [{ displayName: 'Zitten', fileName: 'zitten.png' }, ...]
@@ -407,14 +464,14 @@
             }
 
             // 3. Grid Classes toepassen
-            grid.className = `grid gap-4 flex-1 w-full h-full ${config.gridClass}`;
+            grid.className = `grid gap-2 flex-1 w-full min-h-0 ${config.gridClass}`;
 
             // 4. Slots Genereren
             grid.innerHTML = ''; // Leegmaken
             
             AppState.slots.forEach(slot => {
                 const slotDiv = document.createElement('div');
-                slotDiv.className = "flex flex-col items-center justify-between gap-2 p-2 min-h-0 min-w-0 h-full overflow-hidden";
+                slotDiv.className = "flex flex-col items-center justify-between gap-1 p-1 min-h-0 min-w-0 h-full overflow-hidden";
                 
                 // Afbeelding Vlak
                 const imgContainer = document.createElement('div');
@@ -425,7 +482,7 @@
                     // Er is een afbeelding
                     imgContainer.classList.remove('border-dashed', 'border-slate-300', 'hover:border-brand-500');
                     imgContainer.classList.add('border-solid', 'border-slate-200');
-                    imgContainer.innerHTML = `<img src="${slot.imageUrl}" alt="${slot.naam}" class="w-full h-full object-contain p-2">`;
+                    imgContainer.innerHTML = `<img src="${slot.imageUrl}" alt="${slot.naam}" class="w-full h-full object-contain p-1">`;
                 } else {
                     // Leeg vlak met plusje
                     imgContainer.innerHTML = `
@@ -476,13 +533,21 @@
                 section.innerHTML = `<h4 class="text-slate-500 font-bold mb-3 uppercase tracking-wider text-sm border-b pb-1">${cat.naam}</h4>`;
                 
                 const btnGrid = document.createElement('div');
-                btnGrid.className = "flex flex-wrap gap-2";
+                btnGrid.className = "grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3";
                 
-                cat.iconen.forEach(icoonNaam => {
+                cat.iconen.forEach(icoon => {
                     const btn = document.createElement('button');
-                    btn.className = "px-4 py-2 bg-white border border-slate-200 hover:border-brand-600 hover:bg-brand-50 text-slate-700 rounded-lg font-medium transition shadow-sm whitespace-nowrap";
-                    btn.innerText = icoonNaam;
-                    btn.onclick = () => selectIcon(icoonNaam);
+                    btn.className = "flex items-center justify-center p-2 bg-white border border-slate-200 hover:border-brand-600 hover:bg-brand-50 rounded-lg transition shadow-sm aspect-square";
+                    btn.title = icoon.naam;
+                    
+                    const img = document.createElement('img');
+                    img.src = `images/sclera/${icoon.file}`;
+                    img.alt = icoon.naam;
+                    img.className = "w-full h-full object-contain";
+                    img.loading = "lazy";
+                    
+                    btn.onclick = () => selectIcon(icoon.naam, icoon.file);
+                    btn.appendChild(img);
                     btnGrid.appendChild(btn);
                 });
 
@@ -532,14 +597,22 @@
                     section.innerHTML = '<h4 class="text-slate-500 font-bold mb-3 uppercase tracking-wider text-sm border-b pb-1">Zoekresultaten</h4>';
                     
                     const btnGrid = document.createElement('div');
-                    btnGrid.className = "flex flex-wrap gap-2";
+                    btnGrid.className = "grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3";
                     
                     resultaten.forEach(icoonObj => {
                         const btn = document.createElement('button');
-                        btn.className = "px-4 py-2 bg-white border border-slate-200 hover:border-brand-600 hover:bg-brand-50 text-slate-700 rounded-lg font-medium transition shadow-sm whitespace-nowrap";
-                        btn.innerText = icoonObj.displayName;
+                        btn.className = "flex items-center justify-center p-2 bg-white border border-slate-200 hover:border-brand-600 hover:bg-brand-50 rounded-lg transition shadow-sm aspect-square";
+                        btn.title = icoonObj.displayName;
+                        
+                        const img = document.createElement('img');
+                        img.src = `images/sclera/${icoonObj.fileName}`;
+                        img.alt = icoonObj.displayName;
+                        img.className = "w-full h-full object-contain";
+                        img.loading = "lazy";
+                        
                         // Geef zowel de weergavenaam als de exacte bestandsnaam door
                         btn.onclick = () => selectIcon(icoonObj.displayName, icoonObj.fileName);
+                        btn.appendChild(img);
                         btnGrid.appendChild(btn);
                     });
                     section.appendChild(btnGrid);
