@@ -355,12 +355,12 @@
             wrapper.classList.remove('aspect-portrait', 'aspect-landscape');
             if(config.orientation === 'portrait') {
                 wrapper.classList.add('aspect-portrait');
-                wrapper.style.maxHeight = '90vh';
-                wrapper.style.maxWidth = 'auto';
+                wrapper.style.height = '100%';
+                wrapper.style.width = 'auto';
             } else {
                 wrapper.classList.add('aspect-landscape');
-                wrapper.style.maxWidth = '90vw';
-                wrapper.style.maxHeight = 'auto';
+                wrapper.style.width = '100%';
+                wrapper.style.height = 'auto';
             }
 
             // 3. Grid Classes toepassen
@@ -371,11 +371,11 @@
             
             AppState.slots.forEach(slot => {
                 const slotDiv = document.createElement('div');
-                slotDiv.className = "flex flex-col items-center justify-between gap-2 p-2";
+                slotDiv.className = "flex flex-col items-center justify-between gap-2 p-2 min-h-0 min-w-0";
                 
                 // Afbeelding Vlak
                 const imgContainer = document.createElement('div');
-                imgContainer.className = "w-full flex-1 flex items-center justify-center rounded-xl overflow-hidden cursor-pointer group empty-slot border-2 border-dashed border-slate-300 hover:border-brand-500 hover:bg-brand-50 transition relative";
+                imgContainer.className = "w-full flex-1 flex items-center justify-center rounded-xl overflow-hidden cursor-pointer group empty-slot border-2 border-dashed border-slate-300 hover:border-brand-500 hover:bg-brand-50 transition relative min-h-0";
                 imgContainer.onclick = () => openIconPicker(slot.id);
 
                 if(slot.imageUrl !== "") {
@@ -396,7 +396,7 @@
                 // Tekst Vlak
                 const textInput = document.createElement('input');
                 textInput.type = "text";
-                textInput.className = "picto-input w-full text-center font-semibold text-lg md:text-xl rounded p-1";
+                textInput.className = "picto-input w-full text-center font-semibold text-lg md:text-xl rounded p-1 shrink-0";
                 textInput.placeholder = "Typ tekst...";
                 textInput.maxLength = 40;
                 textInput.value = slot.naam;
