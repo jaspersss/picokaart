@@ -775,7 +775,11 @@
                 const resultaten = alleIconen.filter(icoon => 
                     icoon.searchName.startsWith(cleanQuery) || 
                     icoon.searchName.includes(' ' + cleanQuery)
-                );
+                ).sort((a, b) => {
+                    if (a.source === 'openmoji' && b.source !== 'openmoji') return -1;
+                    if (a.source !== 'openmoji' && b.source === 'openmoji') return 1;
+                    return 0;
+                });
                 container.innerHTML = ''; // Maak resultatenvenster leeg
 
                 // Als we resultaten hebben, toon ze als knoppen
