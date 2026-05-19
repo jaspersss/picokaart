@@ -653,7 +653,7 @@
                     img.src = `images/sclera/${icoon.file}`;
                     img.alt = icoon.naam;
                     img.className = "w-full h-full object-contain";
-                    img.loading = "lazy";
+                    // img.loading = "lazy";
                     
                     btn.onclick = () => selectIcon(icoon.naam, icoon.file);
                     btn.appendChild(img);
@@ -717,7 +717,7 @@
                         img.src = `images/sclera/${icoonObj.fileName}`;
                         img.alt = icoonObj.displayName;
                         img.className = "w-full h-full object-contain";
-                        img.loading = "lazy";
+                        // img.loading = "lazy";
                         
                         // Geef zowel de weergavenaam als de exacte bestandsnaam door
                         btn.onclick = () => selectIcon(icoonObj.displayName, icoonObj.fileName);
