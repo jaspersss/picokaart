@@ -383,6 +383,16 @@
 
         // DE TOP 50 ZORGTERMEN
         const top50Categories = [
+             { naam: "Emoties & Reacties", iconen: [
+                { naam: "Lachen", file: "Grijnzend gezicht (1F600).png", source: "openmoji" },
+                { naam: "Huilen", file: "Huilend gezicht (1F622).png", source: "openmoji" },
+                { naam: "Boos", file: "Boos gezicht (1F620).png", source: "openmoji" },
+                { naam: "Liefde", file: "Rood hart (2764).png", source: "openmoji" },
+                { naam: "Goed zo", file: "Duimen omhoog (1F44D).png", source: "openmoji" },
+                { naam: "Slecht", file: "Duimen naar beneden (1F44E).png", source: "openmoji" },
+                { naam: "Ja", file: "Vinkje (2714).png", source: "openmoji" },
+                { naam: "Nee", file: "Kruisteken (274C).png", source: "openmoji" }
+            ]},
             { naam: "Dagritme", iconen: [
                 { naam: "Opstaan", file: "bed_opstaan.png" },
                 { naam: "Slapen", file: "slapen.png" },
@@ -391,6 +401,18 @@
                 { naam: "Avond", file: "avond.png" },
                 { naam: "Nacht", file: "nacht.png" },
                 { naam: "Rusten", file: "rusten_slaapkamer.png" }
+            ]},
+            { naam: "Tijd, Weer & Plaats", iconen: [
+                { naam: "Klok", file: "Klok (1F514).png", source: "openmoji" },
+                { naam: "Kalender", file: "Kalender (1F4C5).png", source: "openmoji" },
+                { naam: "Zon", file: "Zon (2600).png", source: "openmoji" },
+                { naam: "Regen", file: "Wolk met regen (1F327).png", source: "openmoji" },
+                { naam: "Sneeuw", file: "Sneeuwvlok (2744).png", source: "openmoji" },
+                { naam: "Vuur", file: "Vuur (1F525).png", source: "openmoji" },
+                { naam: "Huis", file: "Huis (1F3E0).png", source: "openmoji" },
+                { naam: "School", file: "School (1F3EB).png", source: "openmoji" },
+                { naam: "Ziekenhuis", file: "Ziekenhuis (1F3E5).png", source: "openmoji" },
+                { naam: "Toilet", file: "Toilet (1F6BB).png", source: "openmoji" }
             ]},
             { naam: "Verzorging", iconen: [
                 { naam: "Douchen", file: "douchen.png" },
@@ -412,6 +434,18 @@
                 { naam: "Drinken", file: "drinken.png" },
                 { naam: "Fruit eten", file: "fruit.png" },
                 { naam: "Snoepje", file: "snoepje.png" }
+            ]},
+            { naam: "Voeding & Natuur", iconen: [
+                { naam: "Appel", file: "Rode appel (1F34E).png", source: "openmoji" },
+                { naam: "Banaan", file: "Banaan (1F34C).png", source: "openmoji" },
+                { naam: "Brood", file: "Brood (1F35E).png", source: "openmoji" },
+                { naam: "Hamburger", file: "Hamburger (1F354).png", source: "openmoji" },
+                { naam: "Pizza", file: "Pizza (1F355).png", source: "openmoji" },
+                { naam: "Koffie/Thee", file: "Warme drank (2615).png", source: "openmoji" },
+                { naam: "Water", file: "Drinkwater (1F6B0).png", source: "openmoji" },
+                { naam: "Hond", file: "Hond (1F415).png", source: "openmoji" },
+                { naam: "Kat", file: "Kat (1F408).png", source: "openmoji" },
+                { naam: "Vogel", file: "Vogel (1F426).png", source: "openmoji" }
             ]},
             { naam: "Medisch & Zorg", iconen: [
                 { naam: "Medicijnen", file: "medicatie.png" },
@@ -447,41 +481,7 @@
                 { naam: "Verdrietig", file: "verdrietig.png" },
                 { naam: "Praten", file: "praten.png" }
             ]},
-            { naam: "Emoties & Reacties (OpenMoji)", iconen: [
-                { naam: "Lachen", file: "Grijnzend gezicht (1F600).png", source: "openmoji" },
-                { naam: "Huilen", file: "Huilend gezicht (1F622).png", source: "openmoji" },
-                { naam: "Boos", file: "Boos gezicht (1F620).png", source: "openmoji" },
-                { naam: "Liefde", file: "Rood hart (2764).png", source: "openmoji" },
-                { naam: "Goed zo", file: "Duimen omhoog (1F44D).png", source: "openmoji" },
-                { naam: "Slecht", file: "Duimen naar beneden (1F44E).png", source: "openmoji" },
-                { naam: "Ja", file: "Vinkje (2714).png", source: "openmoji" },
-                { naam: "Nee", file: "Kruisteken (274C).png", source: "openmoji" }
-            ]},
-            { naam: "Tijd, Weer & Plaats (OpenMoji)", iconen: [
-                { naam: "Klok", file: "Klok (1F514).png", source: "openmoji" },
-                { naam: "Kalender", file: "Kalender (1F4C5).png", source: "openmoji" },
-                { naam: "Zon", file: "Zon (2600).png", source: "openmoji" },
-                { naam: "Regen", file: "Wolk met regen (1F327).png", source: "openmoji" },
-                { naam: "Sneeuw", file: "Sneeuwvlok (2744).png", source: "openmoji" },
-                { naam: "Vuur", file: "Vuur (1F525).png", source: "openmoji" },
-                { naam: "Huis", file: "Huis (1F3E0).png", source: "openmoji" },
-                { naam: "School", file: "School (1F3EB).png", source: "openmoji" },
-                { naam: "Ziekenhuis", file: "Ziekenhuis (1F3E5).png", source: "openmoji" },
-                { naam: "Toilet", file: "Toilet (1F6BB).png", source: "openmoji" }
-            ]},
-            { naam: "Voeding & Natuur (OpenMoji)", iconen: [
-                { naam: "Appel", file: "Rode appel (1F34E).png", source: "openmoji" },
-                { naam: "Banaan", file: "Banaan (1F34C).png", source: "openmoji" },
-                { naam: "Brood", file: "Brood (1F35E).png", source: "openmoji" },
-                { naam: "Hamburger", file: "Hamburger (1F354).png", source: "openmoji" },
-                { naam: "Pizza", file: "Pizza (1F355).png", source: "openmoji" },
-                { naam: "Koffie/Thee", file: "Warme drank (2615).png", source: "openmoji" },
-                { naam: "Water", file: "Drinkwater (1F6B0).png", source: "openmoji" },
-                { naam: "Hond", file: "Hond (1F415).png", source: "openmoji" },
-                { naam: "Kat", file: "Kat (1F408).png", source: "openmoji" },
-                { naam: "Vogel", file: "Vogel (1F426).png", source: "openmoji" }
-            ]},
-            { naam: "Spullen & Activiteiten (OpenMoji)", iconen: [
+            { naam: "Spullen & Activiteiten", iconen: [
                 { naam: "Familie", file: "Familie (1F46A).png", source: "openmoji" },
                 { naam: "Bed", file: "Bed (1F6CF).png", source: "openmoji" },
                 { naam: "Bad", file: "Bad (1F6C1).png", source: "openmoji" },
