@@ -183,7 +183,8 @@
                 <div class="h-4 w-px bg-slate-300 mx-1"></div>
                 <span>
                     Pictogrammen afkomstig van: 
-                    <a href="https://www.sclera.be/" target="_blank" title="Licentie & Pictogrammen via Sclera.be (CC BY-NC-SA 2.0 BE)" class="text-brand-600 hover:underline">© Sclera.be</a>
+                    <a href="https://www.sclera.be/" target="_blank" title="Licentie & Pictogrammen via Sclera.be (CC BY-NC-SA 2.0 BE)" class="text-brand-600 hover:underline">© Sclera.be</a> en
+                    <a href="https://openmoji.org" target="_blank" title="Licentie & Pictogrammen via OpenMoji.org (CC BY-SA 4.0)" class="text-brand-600 hover:underline">© OpenMoji</a>
                 </span>
             </span>
         </div>
@@ -221,10 +222,7 @@
             <!-- Print Footer (Alleen zichtbaar op papier) -->
             <div id="print-footer" class="absolute bottom-[3mm] left-[5mm] right-[5mm] justify-between items-end text-[10px] text-slate-500 font-medium">
                 <span class="flex items-center gap-1.5">Gemaakt via pictokaart.nl powered by <a href="https://beehub.io" target="_blank" class="hover:underline">Beehub.io</a> <img src="https://licensebuttons.net/l/by-nc-sa/4.0/80x15.png" alt="CC BY-NC-SA" class="h-3 opacity-80"></span>
-                <div class="flex flex-col items-end text-right">
-                    <span id="copy-sclera" style="display: none;">Pictogrammen: Sclera.be (CC BY-NC 2.0 BE)</span>
-                    <span id="copy-openmoji" style="display: none;">Pictogrammen: OpenMoji.org (CC BY-SA 4.0)</span>
-                </div>
+                <span id="copy-text" class="text-right"></span>
             </div>
         </div>
 
@@ -448,6 +446,64 @@
                 { naam: "Blij", file: "blij.png" },
                 { naam: "Verdrietig", file: "verdrietig.png" },
                 { naam: "Praten", file: "praten.png" }
+            ]},
+            { naam: "Emoties & Reacties (OpenMoji)", iconen: [
+                { naam: "Lachen", file: "Grijnzend gezicht (1F600).png", source: "openmoji" },
+                { naam: "Huilen", file: "Huilend gezicht (1F622).png", source: "openmoji" },
+                { naam: "Boos", file: "Boos gezicht (1F620).png", source: "openmoji" },
+                { naam: "Liefde", file: "Rood hart (2764).png", source: "openmoji" },
+                { naam: "Goed zo", file: "Duimen omhoog (1F44D).png", source: "openmoji" },
+                { naam: "Slecht", file: "Duimen naar beneden (1F44E).png", source: "openmoji" },
+                { naam: "Ja", file: "Vinkje (2714).png", source: "openmoji" },
+                { naam: "Nee", file: "Kruisteken (274C).png", source: "openmoji" }
+            ]},
+            { naam: "Tijd, Weer & Plaats (OpenMoji)", iconen: [
+                { naam: "Klok", file: "Klok (1F514).png", source: "openmoji" },
+                { naam: "Kalender", file: "Kalender (1F4C5).png", source: "openmoji" },
+                { naam: "Zon", file: "Zon (2600).png", source: "openmoji" },
+                { naam: "Regen", file: "Wolk met regen (1F327).png", source: "openmoji" },
+                { naam: "Sneeuw", file: "Sneeuwvlok (2744).png", source: "openmoji" },
+                { naam: "Vuur", file: "Vuur (1F525).png", source: "openmoji" },
+                { naam: "Huis", file: "Huis (1F3E0).png", source: "openmoji" },
+                { naam: "School", file: "School (1F3EB).png", source: "openmoji" },
+                { naam: "Ziekenhuis", file: "Ziekenhuis (1F3E5).png", source: "openmoji" },
+                { naam: "Toilet", file: "Toilet (1F6BB).png", source: "openmoji" }
+            ]},
+            { naam: "Voeding & Natuur (OpenMoji)", iconen: [
+                { naam: "Appel", file: "Rode appel (1F34E).png", source: "openmoji" },
+                { naam: "Banaan", file: "Banaan (1F34C).png", source: "openmoji" },
+                { naam: "Brood", file: "Brood (1F35E).png", source: "openmoji" },
+                { naam: "Hamburger", file: "Hamburger (1F354).png", source: "openmoji" },
+                { naam: "Pizza", file: "Pizza (1F355).png", source: "openmoji" },
+                { naam: "Koffie/Thee", file: "Warme drank (2615).png", source: "openmoji" },
+                { naam: "Water", file: "Drinkwater (1F6B0).png", source: "openmoji" },
+                { naam: "Hond", file: "Hond (1F415).png", source: "openmoji" },
+                { naam: "Kat", file: "Kat (1F408).png", source: "openmoji" },
+                { naam: "Vogel", file: "Vogel (1F426).png", source: "openmoji" }
+            ]},
+            { naam: "Spullen & Activiteiten (OpenMoji)", iconen: [
+                { naam: "Familie", file: "Familie (1F46A).png", source: "openmoji" },
+                { naam: "Bed", file: "Bed (1F6CF).png", source: "openmoji" },
+                { naam: "Bad", file: "Bad (1F6C1).png", source: "openmoji" },
+                { naam: "Douche", file: "Douche (1F6BF).png", source: "openmoji" },
+                { naam: "Medicijnen", file: "Medicatie (E307).png", source: "openmoji" },
+                { naam: "Rolstoel", file: "Rolstoel symbool (267F).png", source: "openmoji" },
+                { naam: "Auto", file: "Auto (1F697).png", source: "openmoji" },
+                { naam: "Fiets", file: "Fiets (1F6B2).png", source: "openmoji" },
+                { naam: "Bus", file: "Bus (1F68C).png", source: "openmoji" },
+                { naam: "Trein", file: "Trein (1F686).png", source: "openmoji" },
+                { naam: "Rugzak", file: "Rugzak (1F392).png", source: "openmoji" },
+                { naam: "Boeken", file: "Boeken (1F4DA).png", source: "openmoji" },
+                { naam: "Potlood", file: "Potlood (270F).png", source: "openmoji" },
+                { naam: "Telefoon", file: "Telefoon (260E).png", source: "openmoji" },
+                { naam: "Laptop", file: "Laptop (1F4BB).png", source: "openmoji" },
+                { naam: "Televisie", file: "Televisie (1F4FA).png", source: "openmoji" },
+                { naam: "Muziek", file: "Muzieknoten (1F3B6).png", source: "openmoji" },
+                { naam: "Puzzel", file: "Puzzelstukje (1F9E9).png", source: "openmoji" },
+                { naam: "Voetbal", file: "Voetbal (26BD).png", source: "openmoji" },
+                { naam: "Winkelwagen", file: "Winkelwagen (1F6D2).png", source: "openmoji" },
+                { naam: "Geld", file: "Geld zak (1F4B0).png", source: "openmoji" },
+                { naam: "Sleutel", file: "Sleutel (1F511).png", source: "openmoji" }
             ]}
         ];
 
@@ -619,8 +675,15 @@
             const usesSclera = AppState.slots.some(s => s.imageUrl.includes('/sclera/'));
             const usesOpenMoji = AppState.slots.some(s => s.imageUrl.includes('/openmoji/'));
             
-            document.getElementById('copy-sclera').style.display = usesSclera ? 'block' : 'none';
-            document.getElementById('copy-openmoji').style.display = usesOpenMoji ? 'block' : 'none';
+            let copyText = "";
+            if (usesSclera && usesOpenMoji) {
+                copyText = "Pictogrammen: OpenMoji.org (CC BY-SA 4.0) en Sclera.be (CC BY-NC 2.0 BE)";
+            } else if (usesSclera) {
+                copyText = "Pictogrammen: Sclera.be (CC BY-NC 2.0 BE)";
+            } else if (usesOpenMoji) {
+                copyText = "Pictogrammen: OpenMoji.org (CC BY-SA 4.0)";
+            }
+            document.getElementById('copy-text').textContent = copyText;
         }
 
         // --- 4. ICON PICKER LOGICA ---
@@ -657,13 +720,15 @@
                     btn.className = "flex items-center justify-center p-2 bg-white border border-slate-200 hover:border-brand-600 hover:bg-brand-50 rounded-lg transition shadow-sm aspect-square";
                     btn.title = icoon.naam;
                     
+                    const sourceFolder = icoon.source || 'sclera';
+                    
                     const img = document.createElement('img');
-                    img.src = `images/sclera/${icoon.file}`;
+                    img.src = `images/${sourceFolder}/${icoon.file}`;
                     img.alt = icoon.naam;
                     img.className = "w-full h-full object-contain";
                     // img.loading = "lazy";
                     
-                    btn.onclick = () => selectIcon(icoon.naam, icoon.file);
+                    btn.onclick = () => selectIcon(icoon.naam, icoon.file, sourceFolder);
                     btn.appendChild(img);
                     btnGrid.appendChild(btn);
                 });
