@@ -461,7 +461,11 @@
                 if (response.ok) {
                     const jsonIconen = await response.json();
                     if (jsonIconen.length > 0) {
-                        alleIconen = jsonIconen;
+                        // Optimalisatie: we maken de namen alvast kleine letters zodat we dit niet bij elke toetsaanslag 10.000x hoeven te doen
+                        alleIconen = jsonIconen.map(icoon => ({
+                            ...icoon,
+                            searchName: icoon.displayName.toLowerCase()
+                        }));
                     }
                 }
             } catch (error) {
@@ -632,6 +636,8 @@
         function closeIconPicker() {
             document.getElementById('modal-icon-picker').classList.add('hidden');
             activeSlotId = null;
+            // Optimalisatie voor Printen: Maak het zware geheugen leeg als de popup sluit
+            document.getElementById('icon-results').innerHTML = '';
         }
 
         function renderIconCategories() {
@@ -676,7 +682,7 @@
             // Als de bestandsnaam niet direct is meegegeven (bv. via een categorieknop),
             // proberen we de juiste, originele bestandsnaam op te zoeken in onze complete lijst.
             if (!finalFileName && displayName) {
-                const foundIcon = alleIconen.find(icon => icon.displayName.toLowerCase() === displayName.toLowerCase());
+                const foundIcon = alleIconen.find(icon => icon.searchName === displayName.toLowerCase());
                 if (foundIcon) {
                     finalFileName = foundIcon.fileName;
                     finalSource = foundIcon.source;
@@ -700,7 +706,11 @@
             
             if(cleanQuery.length > 0) {
                 // Zoek in de 'displayName' van de icoon-objecten
-                const resultaten = alleIconen.filter(icoon => icoon.displayName.toLowerCase().includes(cleanQuery));
+                // Zoek alleen naar iconen waarvan de naam of een los woord daarin BEGINT met de zoekterm
+                const resultaten = alleIconen.filter(icoon => 
+                    icoon.searchName.startsWith(cleanQuery) || 
+                    icoon.searchName.includes(' ' + cleanQuery)
+                );
                 container.innerHTML = ''; // Maak resultatenvenster leeg
 
                 // Als we resultaten hebben, toon ze als knoppen
