@@ -221,7 +221,10 @@
             <!-- Print Footer (Alleen zichtbaar op papier) -->
             <div id="print-footer" class="absolute bottom-[3mm] left-[5mm] right-[5mm] justify-between items-end text-[10px] text-slate-500 font-medium">
                 <span class="flex items-center gap-1.5">Gemaakt via pictokaart.nl powered by <a href="https://beehub.io" target="_blank" class="hover:underline">Beehub.io</a> <img src="https://licensebuttons.net/l/by-nc-sa/4.0/80x15.png" alt="CC BY-NC-SA" class="h-3 opacity-80"></span>
-                <span>Pictogrammen via Sclera.be (CC BY-NC 2.0 BE)</span>
+                <div class="flex flex-col items-end text-right">
+                    <span id="copy-sclera" style="display: none;">Pictogrammen: Sclera.be (CC BY-NC 2.0 BE)</span>
+                    <span id="copy-openmoji" style="display: none;">Pictogrammen: OpenMoji.org (CC BY-SA 4.0)</span>
+                </div>
             </div>
         </div>
 
@@ -454,23 +457,15 @@
         // Haal de lijst op via een lokaal tekstbestand (voorkomt API limieten en is sneller)
         async function laadIconenVanGithub() {
             try {
-                const response = await fetch('iconen.txt');
+                const response = await fetch('iconen.json');
                 if (response.ok) {
-                    const tekst = await response.text();
-                    const bestanden = tekst.split('\n').filter(line => line.trim().endsWith('.png'));
-                    
-                    const githubIconen = bestanden.map(fileName => {
-                            const cleanFileName = fileName.trim();
-                            let displayName = cleanFileName.replace('.png', '').replace(/_/g, ' ');
-                            displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
-                            return { displayName: displayName, fileName: cleanFileName };
-                        });
-                    if (githubIconen.length > 0) {
-                        alleIconen = githubIconen;
+                    const jsonIconen = await response.json();
+                    if (jsonIconen.length > 0) {
+                        alleIconen = jsonIconen;
                     }
                 }
             } catch (error) {
-                console.warn("Kon iconen.txt niet ophalen, we gebruiken de standaard lijst.", error);
+                console.warn("Kon iconen.json niet ophalen, we gebruiken de standaard lijst.", error);
             }
         }
 
@@ -479,7 +474,7 @@
             titel: "",
             heeftTitel: true,
             layout: "3x4", // default
-            slots: [] // [{ id: 0, naam: "", imageUrl: "" }, ...]
+            slots: [] // [{ id: 0, naam: "", imageUrl: "", source: "" }, ...]
         };
 
         let activeSlotId = null; // Houdt bij welk vakje we nu bewerken in de popup
@@ -528,7 +523,7 @@
             // Maak lege slots aan
             AppState.slots = [];
             for(let i=0; i<config.total; i++) {
-                AppState.slots.push({ id: i, naam: "", imageUrl: "" });
+                AppState.slots.push({ id: i, naam: "", imageUrl: "", source: "" });
             }
             
             // Verberg popups en toon workspace
@@ -615,6 +610,13 @@
                 slotDiv.appendChild(textInput);
                 grid.appendChild(slotDiv);
             });
+
+            // 5. Copyright Licenties dynamisch tonen
+            const usesSclera = AppState.slots.some(s => s.imageUrl.includes('/sclera/'));
+            const usesOpenMoji = AppState.slots.some(s => s.imageUrl.includes('/openmoji/'));
+            
+            document.getElementById('copy-sclera').style.display = usesSclera ? 'block' : 'none';
+            document.getElementById('copy-openmoji').style.display = usesOpenMoji ? 'block' : 'none';
         }
 
         // --- 4. ICON PICKER LOGICA ---
@@ -665,10 +667,11 @@
             });
         }
 
-        function selectIcon(displayName, fileName = null) {
+        function selectIcon(displayName, fileName = null, source = 'sclera') {
             if(activeSlotId === null) return;
             
             let finalFileName = fileName;
+            let finalSource = source;
 
             // Als de bestandsnaam niet direct is meegegeven (bv. via een categorieknop),
             // proberen we de juiste, originele bestandsnaam op te zoeken in onze complete lijst.
@@ -676,11 +679,12 @@
                 const foundIcon = alleIconen.find(icon => icon.displayName.toLowerCase() === displayName.toLowerCase());
                 if (foundIcon) {
                     finalFileName = foundIcon.fileName;
+                    finalSource = foundIcon.source;
                 }
             }
             
             // Als we een bestandsnaam hebben, maken we de URL. Anders blijft de afbeelding leeg (voor custom tekst).
-            const imageUrl = finalFileName ? `images/sclera/${finalFileName}` : "";
+            const imageUrl = finalFileName ? `images/${finalSource}/${finalFileName}` : "";
             
             // Update State
             AppState.slots[activeSlotId].naam = displayName;
@@ -714,13 +718,13 @@
                         btn.title = icoonObj.displayName;
                         
                         const img = document.createElement('img');
-                        img.src = `images/sclera/${icoonObj.fileName}`;
+                        img.src = `images/${icoonObj.source}/${icoonObj.fileName}`;
                         img.alt = icoonObj.displayName;
                         img.className = "w-full h-full object-contain";
                         // img.loading = "lazy";
                         
                         // Geef zowel de weergavenaam als de exacte bestandsnaam door
-                        btn.onclick = () => selectIcon(icoonObj.displayName, icoonObj.fileName);
+                        btn.onclick = () => selectIcon(icoonObj.displayName, icoonObj.fileName, icoonObj.source);
                         btn.appendChild(img);
                         btnGrid.appendChild(btn);
                     });
