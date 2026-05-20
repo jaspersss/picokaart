@@ -7,7 +7,7 @@ Je bent vrij om:
 * **Te bewerken** — te remixen, te veranderen en afgeleide werken te maken van het materiaal
 
 Onder de volgende voorwaarden:
-* **Naamsvermelding** — Je moet de maker van het werk vermelden (in dit geval *pictokaart.nl* en *Sclera.be* voor de iconen), een link naar de licentie plaatsen en aangeven of het werk veranderd is.
+* **Naamsvermelding** — Je moet de maker van het werk vermelden (in dit geval *pictokaart.nl* en voor de pictogrammen *Sclera.be* en OpenEmoji.org), een link naar de licentie plaatsen en aangeven of het werk veranderd is.
 * **NietCommercieel** — Je mag het werk niet gebruiken voor commerciële doeleinden.
 * **GelijkDelen** — Als je het werk remixt, verandert, of erop voortbouwt, moet je het veranderde materiaal verspreiden onder dezelfde licentie als het originele werk.
 
