@@ -12,7 +12,7 @@ In de zoektocht naar hulpmiddelen merkte ik hoe frustrerend het was om even snel
 
 Ik dacht: **dit moet sneller, simpeler en vooral menselijker.** Daarom heb ik `pictokaart.nl` gebouwd.
 
-Laat vooral je ervaringen weten, omdat we geen gegevens verzamelen weten we ook niet hoevaak en hoe het gebruikt wordt, laat het weten.
+Laat vooral je ervaringen weten, omdat we geen gegevens verzamelen weten we ook niet hoevaak en hoe het gebruikt wordt.
 
 ---
 
@@ -24,7 +24,7 @@ Of het nu gaat om een ochtendritueel voor een cliënt in een zorginstelling, of 
 
 ### De uitgangspunten:
 *   **Geen accounts of gedoe:** Direct naar de website, klikken, typen en printen.
-*   **Privacy first:** Er wordt geen enkele vorm van data opgeslagen of verzonden. Alle cliëntgegevens en teksten blijven strikt op de computer van de gebruiker staan. je ziet ook geen cookiebanner, omdat we gewoonweg geen cookies hebben.
+*   **Privacy first:** Er wordt geen enkele vorm van data opgeslagen of verzonden. Alle cliëntgegevens en teksten blijven op de computer van de gebruiker staan. Je ziet bv ook geen cookiebanner, omdat we gewoonweg geen cookies hebben.
 *   **Altijd passend:** De kaarten zijn zo geprogrammeerd dat ze áltijd perfect op één A4-tje passen.
 
 ---
@@ -40,4 +40,4 @@ Loop je tegen dingen aan, mis je een bepaalde lay-out of heb je ideeën om de we
 
 ---
 
-*Met speciale dank aan de vrijwilligers van **Sclera.be** voor het beschikbaar stellen van hun fantastische bibliotheek met meer dan 10.000 pictogrammen.*
+*Met speciale dank aan de vrijwilligers van **Sclera.be** en **OpenEmoji.org**voor het beschikbaar stellen van hun fantastische bibliotheken pictogrammen.*
