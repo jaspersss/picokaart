@@ -351,7 +351,13 @@
                 </button>
                 <h3 class="text-xl font-bold mb-4">Kies een pictogram</h3>
                 <div class="flex gap-2">
-                    <input type="text" id="icon-search" placeholder="Typ hier om te zoeken in de database van OpenMoji en Sclera" class="w-full p-4 rounded-xl border border-slate-300 shadow-sm focus:border-brand-600 focus:ring-2 focus:ring-brand-100 text-lg" onkeyup="filterIcons(this.value)">
+                    <input type="text" id="icon-search" placeholder="Zoek of upload je eigen icoon..." class="w-full p-4 rounded-xl border border-slate-300 shadow-sm focus:border-brand-600 focus:ring-2 focus:ring-brand-100 text-lg" onkeyup="filterIcons(this.value)">
+                    
+                    <input type="file" id="custom-icon-upload" class="hidden" accept="image/*" onchange="handleCustomIconUpload(event)">
+                    <button onclick="document.getElementById('custom-icon-upload').click()" class="px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-xl font-medium transition whitespace-nowrap flex items-center gap-2" title="Upload je eigen pictogram">
+                        <svg class="w-5 h-5 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                        Upload
+                    </button>
                     <button onclick="selectIcon('', null)" class="px-4 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-xl font-medium transition whitespace-nowrap flex items-center gap-2" title="Maak dit vakje weer leeg">
                         <svg class="w-5 h-5 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                         Wissen
@@ -518,10 +524,18 @@
                     const jsonIconen = await response.json();
                     if (jsonIconen.length > 0) {
                         // Optimalisatie: we maken de namen alvast kleine letters zodat we dit niet bij elke toetsaanslag 10.000x hoeven te doen
-                        alleIconen = jsonIconen.map(icoon => ({
-                            ...icoon,
-                            searchName: icoon.displayName.toLowerCase()
-                        }));
+                        alleIconen = jsonIconen.map(icoon => {
+                            let cleanDisplayName = icoon.displayName;
+                            // Verwijder de hex-code tussen haakjes voor OpenMoji iconen
+                            if (icoon.source === 'openmoji') {
+                                cleanDisplayName = cleanDisplayName.replace(/\s\([\dA-F]+\)$/, '').trim();
+                            }
+                            return {
+                                ...icoon,
+                                displayName: cleanDisplayName,
+                                searchName: cleanDisplayName.toLowerCase()
+                            };
+                        });
                     }
                 }
             } catch (error) {
@@ -825,6 +839,34 @@
             } else {
                 renderIconCategories();
             }
+        }
+
+        function handleCustomIconUpload(event) {
+            const file = event.target.files[0];
+            if (!file || activeSlotId === null) return;
+
+            if (!file.type.startsWith('image/')){
+                alert("Kies a.u.b. een afbeeldingsbestand (jpg, png, etc.).");
+                event.target.value = ''; 
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const displayName = file.name.split('.').slice(0, -1).join('.') || file.name;
+                const imageUrl = e.target.result;
+
+                // Update State
+                AppState.slots[activeSlotId].naam = displayName;
+                AppState.slots[activeSlotId].imageUrl = imageUrl;
+
+                closeIconPicker();
+                renderCanvas();
+            };
+            reader.readAsDataURL(file);
+            
+            // Reset de input zodat je hetzelfde bestand nog een keer kunt inladen
+            event.target.value = ''; 
         }
 
         // --- 5. DATA MANAGEMENT (UPDATE, SAVE, LOAD) ---
