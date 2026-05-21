@@ -133,7 +133,11 @@
                 outline: none !important; 
                 -webkit-appearance: none !important;
                 appearance: none !important;
-                text-overflow: ellipsis !important;
+            }
+            #canvas-grid .picto-input {
+                font-size: 12pt !important; 
+                line-height: 1.2 !important;
+                overflow: hidden !important;
             }
             .picto-input::placeholder { color: transparent !important; }
             
@@ -672,13 +676,19 @@
                 }
 
                 // Tekst Vlak
-                const textInput = document.createElement('input');
-                textInput.type = "text";
-                textInput.className = "picto-input w-full min-w-0 text-center font-semibold text-lg md:text-xl rounded p-1 shrink-0";
+                const textInput = document.createElement('textarea');
+                textInput.className = "picto-input w-full min-w-0 text-center font-semibold text-base md:text-lg rounded p-1 shrink-0 resize-none overflow-hidden leading-tight";
+                textInput.rows = 2;
                 textInput.placeholder = "Typ tekst...";
                 textInput.maxLength = 40;
                 textInput.value = slot.naam;
                 textInput.onkeyup = (e) => updateSlotText(slot.id, e.target.value);
+                textInput.onkeydown = (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        textInput.blur();
+                    }
+                };
 
                 slotDiv.appendChild(imgContainer);
                 slotDiv.appendChild(textInput);
